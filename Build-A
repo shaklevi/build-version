@@ -1,0 +1,107 @@
+import groovy.json.JsonOutput
+pipeline {
+    agent any 
+
+    environment {
+        FOLDER_NAME = 'clone_dir'
+    }
+    parameters {
+        string(name: 'SOURCE_BRANCH', defaultValue: '', description: 'Branch passed from upstream')
+        string(name: 'PR_REPO_URL', defaultValue: '', description: 'Repository URL passed from upstream')
+        string(name: 'START_TIME',defaultValue:'', description: 'Start time of tiggering build in millis')
+    }
+    stages {
+        stage('Print Environment Details') {
+            steps {
+                echo "=============================================="
+                echo "Received Source Branch: ${params.SOURCE_BRANCH}"
+                echo "Received Repository URL: ${params.PR_REPO_URL}"
+                echo "=============================================="
+            }
+        }
+
+        stage('Clone Repository') {
+            steps {
+                // Fails early if the triggering webhook didn't provide the necessary details
+                script {
+                    if (!params.SOURCE_BRANCH || !params.PR_REPO_URL) {
+                        error "Missing required trigger environment variables: SOURCE_BRANCH or PR_REPO_URL."
+                    }
+                }
+
+                dir("${env.FOLDER_NAME}") {
+                    deleteDir() // Cleans up the directory before cloning
+                    
+                    echo "Cloning branch ${params.SOURCE_BRANCH} from ${params.PR_REPO_URL}..."
+                    git branch: params.SOURCE_BRANCH, url: params.PR_REPO_URL
+                }
+            }
+        }
+
+        stage('Count Files') {
+            steps {
+                dir("${env.FOLDER_NAME}") {
+                    script {
+                        // Executes the find command and captures the output
+                        env.FILE_COUNT = sh(
+                            script: "find . -not -path '*/.*' -type f | wc -l", 
+                            returnStdout: true
+                        ).trim()
+
+                        echo "=============================================="
+                        echo "Total number of files in ${env.FOLDER_NAME}: ${env.FILE_COUNT}"
+                        echo "=============================================="
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success {
+            script {
+
+                // Calcaulte Build Duratrion
+                long start = env.START_TIME as Long
+                long end = System.currentTimeMillis()
+                long duration = end - start
+                
+                // Format timestamps into human-readable strings
+                def startDate = new Date(start).format('yyyy-MM-dd HH:mm:ss z', TimeZone.getTimeZone('UTC'))
+                def endDate = new Date(end).format('yyyy-MM-dd HH:mm:ss z', TimeZone.getTimeZone('UTC'))
+                
+                // Print or send to Slack/Email/API
+                echo "======================================"
+                echo "Build Start Time: ${startDate}"
+                echo "Build End Time:   ${endDate}"
+                echo "Total Duration:   ${duration / 1000} seconds"
+                echo "======================================"
+                
+                //Write Data to Json file
+                def configData = [
+                    "File Count": env.FILE_COUNT,
+                    "Start Date": startDate,
+                    "End Date": endDate
+
+                ]
+                // Convert the Groovy map into a serialized JSON string
+                def jsonString = JsonOutput.toJson(configData)
+                
+                // Format it to make it pretty/readable
+                def prettyJson = JsonOutput.prettyPrint(jsonString)
+
+                // Write the raw string to a file
+                writeFile(file: 'build-params.json', text: prettyJson)
+                sh 'cat build-params.json'
+                
+                bitbucketStatusNotify(buildState: 'SUCCESSFUL')
+
+            }
+            
+        }
+        failure {
+                echo "Build failed. Skipping JSON generation to prevent corrupted data."
+                bitbucketStatusNotify(buildState: 'FAILED')
+        }
+    }
+    
+}
