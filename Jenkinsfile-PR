@@ -17,10 +17,7 @@ pipeline {
             // Filter: Only fire the pipeline if the event header equals pullrequest:fulfilled (Merged)
             regexpFilterText: '${x_event_key}',
             regexpFilterExpression: '^pullrequest:fulfilled$',
-            
-            // Token acts as the unique identifier for this specific job
-            token: 'bitbucket-pr-merged-token',
-            
+             
             causeString: 'Triggered by Bitbucket Cloud PR Merge',
             printContributedVariables: true,
             printPostContent: true 
@@ -46,7 +43,7 @@ pipeline {
                             
                             
                             //Passing SOURCE_BRANCH=Branch-A  and REPO_URL as env variables to Build-A
-                            build job: 'Build-A', parameters: [
+                            build job: 'Build-A-GIT', parameters: [
                                 string(name: 'SOURCE_BRANCH', value: env.SOURCE_BRANCH),
                                 string(name: 'PR_REPO_URL', value: env.PR_REPO_URL),
                                 string(name: 'START_TIME', value: env.START_TIME)
@@ -56,7 +53,7 @@ pipeline {
                             
                             
                             //Passing SOURCE_BRANCH=Branch-B  and REPO_URL as env variables to Build-B
-                            build job: 'Build-B', parameters: [
+                            build job: 'Build-B-GIT', parameters: [
                                 string(name: 'SOURCE_BRANCH', value: env.SOURCE_BRANCH),
                                 string(name: 'PR_REPO_URL', value: env.PR_REPO_URL),
                                 string(name: 'START_TIME', value: env.START_TIME)
