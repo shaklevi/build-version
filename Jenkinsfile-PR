@@ -1,0 +1,78 @@
+pipeline {
+    agent any
+    
+    triggers {
+        GenericTrigger(
+            genericVariables: [
+                [key: 'sourceBranch', value: '$.pullrequest.source.branch.name'],
+                [key: 'targetBranch', value: '$.pullrequest.destination.branch.name'],
+                [key: 'PR_REPO_URL',  value: '$.repository.links.html.href']
+            ],
+            
+             // Extract the Bitbucket Event Key from the incoming HTTP Headers
+            genericHeaderVariables: [
+                [key: 'x-event-key', regexp: '^(.*)$', variable: 'x_event_key']
+            ],
+            
+            // Filter: Only fire the pipeline if the event header equals pullrequest:fulfilled (Merged)
+            regexpFilterText: '${x_event_key}',
+            regexpFilterExpression: '^pullrequest:fulfilled$',
+            
+            // Token acts as the unique identifier for this specific job
+            token: 'bitbucket-pr-merged-token',
+            
+            causeString: 'Triggered by Bitbucket Cloud PR Merge',
+            printContributedVariables: true,
+            printPostContent: true 
+        )
+    }
+    environment {
+        // Map the webhook injected variables safely using string interpolation
+        START_TIME = "${currentBuild.startTimeInMillis}"
+        SOURCE_BRANCH = "${sourceBranch}"
+        TARGET_BRANCH = "${targetBranch}"
+        REPO_URL      = "${PR_REPO_URL}"
+    } 
+    stages {
+        stage('Build & Test') {
+            steps {
+                script {
+                    // Safe access using the global env map
+                    if (env.SOURCE_BRANCH) {
+                        echo "Source Branch (Requesting to merge): ${env.SOURCE_BRANCH}"
+                        echo "Target Branch (Merged into): ${env.TARGET_BRANCH}"
+                        if (env.SOURCE_BRANCH == 'Branch-A') {
+                            echo "Source branch is Branch-A. Triggering Build-A..."
+                            
+                            
+                            //Passing SOURCE_BRANCH=Branch-A  and REPO_URL as env variables to Build-A
+                            build job: 'Build-A', parameters: [
+                                string(name: 'SOURCE_BRANCH', value: env.SOURCE_BRANCH),
+                                string(name: 'PR_REPO_URL', value: env.PR_REPO_URL),
+                                string(name: 'START_TIME', value: env.START_TIME)
+                            ]  
+                        } else {
+                            echo "Source branch is ${env.SOURCE_BRANCH}. Triggering Build-B..."
+                            
+                            
+                            //Passing SOURCE_BRANCH=Branch-B  and REPO_URL as env variables to Build-B
+                            build job: 'Build-B', parameters: [
+                                string(name: 'SOURCE_BRANCH', value: env.SOURCE_BRANCH),
+                                string(name: 'PR_REPO_URL', value: env.PR_REPO_URL),
+                                string(name: 'START_TIME', value: env.START_TIME)
+                            ]
+                        }
+                        
+                    } else {
+                        echo "Build triggered manually or payload structure mismatched."
+                    }
+                }
+            }
+        }
+        stage('build') {
+            steps {
+                echo "Hello World!"
+            }
+        }
+    }
+}
