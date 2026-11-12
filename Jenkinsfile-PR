@@ -5,6 +5,8 @@ pipeline {
         GenericTrigger(
             token: 'shahar_private_token',
             genericVariables: [
+                [key: 'PR_ACTION',     value: '$.action', defaultValue: ''],
+                [key: 'PR_MERGED',     value: '$.pull_request.merged', defaultValue: 'false'],
                 [key: 'sourceBranch', value: '$.pull_request.head.ref'],
                 [key: 'targetBranch', value: '$.pull_request.base.ref'],
                 [key: 'PR_REPO_URL',  value: '$.repository.html_url']
@@ -16,10 +18,10 @@ pipeline {
             ],
             
             // Filter: Only fire the pipeline if the event header equals pullrequest:fulfilled (Merged)
-            regexpFilterText: '${x_event_key}',
-            regexpFilterExpression: '^pull_request_closed_true$',
+            regexpFilterText: '$PR_ACTION_$PR_MERGED',
+            regexpFilterExpression: '^closed_true$',
              
-            causeString: 'Triggered by Bitbucket Cloud PR Merge',
+            causeString: 'Triggered by GitHUB  PR Merge',
             printContributedVariables: true,
             printPostContent: true 
         )
@@ -37,8 +39,13 @@ pipeline {
                 script {
                     // Safe access using the global env map
                     if (env.SOURCE_BRANCH) {
+                        echo "=========================================="
+                        echo "PR Action:     ${env.PR_ACTION}"
+                        echo "PR Merged:     ${env.PR_MERGED}"
                         echo "Source Branch (Requesting to merge): ${env.SOURCE_BRANCH}"
                         echo "Target Branch (Merged into): ${env.TARGET_BRANCH}"
+                        echo "Repo URL:      ${env.PR_REPO_URL}"
+                        echo "=========================================="
                         if (env.SOURCE_BRANCH == 'Branch-A') {
                             echo "Source branch is Branch-A. Triggering Build-A..."
                             
