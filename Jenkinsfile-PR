@@ -4,19 +4,19 @@ pipeline {
     triggers {
         GenericTrigger(
             genericVariables: [
-                [key: 'sourceBranch', value: '$.pullrequest.source.branch.name'],
-                [key: 'targetBranch', value: '$.pullrequest.destination.branch.name'],
-                [key: 'PR_REPO_URL',  value: '$.repository.links.html.href']
+                [key: 'sourceBranch', value: '$.pull_request.head.ref'],
+                [key: 'targetBranch', value: '$.pull_request.base.ref'],
+                [key: 'PR_REPO_URL',  value: '$.repository.html_url']
             ],
             
              // Extract the Bitbucket Event Key from the incoming HTTP Headers
             genericHeaderVariables: [
-                [key: 'x-event-key', regexp: '^(.*)$', variable: 'x_event_key']
+                [key: 'X-GitHub-Event', regexp: '^(.*)$', variable: 'x_event_key']
             ],
             
             // Filter: Only fire the pipeline if the event header equals pullrequest:fulfilled (Merged)
             regexpFilterText: '${x_event_key}',
-            regexpFilterExpression: '^pullrequest:fulfilled$',
+            regexpFilterExpression: '^pull_request_closed_true$',
              
             causeString: 'Triggered by Bitbucket Cloud PR Merge',
             printContributedVariables: true,
