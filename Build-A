@@ -75,7 +75,7 @@ pipeline {
 
                         echo "Build ${BUILD_NUMBER}" > version.txt
 
-                        git add version.txt
+                        git add .
                         git commit -m "chore: update version from build ${BUILD_NUMBER}" || echo "No changes to commit"
                         git remote set-url origin git@github.com:shaklevi/multi-file-c.git
                         GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" git push origin HEAD:main
