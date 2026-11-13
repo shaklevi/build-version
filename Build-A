@@ -43,7 +43,6 @@ pipeline {
                 dir("${env.FOLDER_NAME}") {
                     sh '''
                         gcc --version
-                        make clean
                         make
                     '''
                     script {
