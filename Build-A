@@ -63,7 +63,7 @@ pipeline {
     post {
         success {
             dir("${env.FOLDER_NAME}") {
-                withCredentials([gitUsernamePassword(credentialsId: 'git_ssh_key', gitToolName: 'Default')]) {
+                sshagent(credentials: ['git_ssh_key']) {
                     sh """
                         git config user.name "Jenkins CI"
                         git config user.email "jenkins@example.com"
