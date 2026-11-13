@@ -108,7 +108,7 @@ pipeline {
                 writeFile(file: 'build-params.json', text: prettyJson)
                 sh 'cat build-params.json'
 
-                # bitbucketStatusNotify(buildState: 'SUCCESSFUL')
+                // bitbucketStatusNotify(buildState: 'SUCCESSFUL')
             }
         }
 
