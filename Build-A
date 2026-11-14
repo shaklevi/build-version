@@ -41,15 +41,6 @@ pipeline {
         stage('Build') {
             steps {
                 dir("${env.FOLDER_NAME}") {
-                    sshagent(credentials: ['git_ssh_key']) {
-                        sh '''
-                            #  Checkout branch main
-                            GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" git fetch origin main
-                            git checkout -B main origin/main
-                            
-                            gcc --version
-                            make
-                        '''
                         script {
                             env.FILE_COUNT_SOURCE_BRANCH = sh(
                                 script: "find . -not -path '*/.*' -type f | wc -l",
@@ -60,6 +51,15 @@ pipeline {
                             echo "Total number of files in ${env.FOLDER_NAME}: ${env.FILE_COUNT_SOURCE_BRANCH}"
                             echo "=============================================="
                         }
+                        sshagent(credentials: ['git_ssh_key']) {
+                        sh '''
+                            #  Checkout branch main
+                            GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" git fetch origin main
+                            git checkout -B main origin/main
+                            
+                            gcc --version
+                            make
+                        '''
                     }
                 }
             }
