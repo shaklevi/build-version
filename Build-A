@@ -140,7 +140,7 @@ pipeline {
                                 -H "Authorization: Bearer \${GITHUB_TOKEN}" \
                                 -H "Accept: application/vnd.github+json" \
                                 "https://github.com{params.TARGET_REPO_OWNER}/${params.TARGET_REPO_NAME}/statuses/${params.PR_COMMIT_SHA}" \
-                                -d '{"state":"${status}","target_url":"${env.BUILD_URL}","context":"ci/cross-repo-jenkins","description":"Build finished with status: ${status}"}'
+                                -d '{"state":"${status}","target_url":"${params.PR_REPO_URL}","context":"ci/cross-repo-jenkins","description":"Build finished with status: ${status}"}'
                             """
                         }
                     } 
