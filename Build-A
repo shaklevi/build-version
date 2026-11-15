@@ -127,7 +127,7 @@ pipeline {
             }
 
             failure {
-                echo "Build failed. Skipping JSON generation to prevent corrupted data."
+                echo "Build 'Build-A-Git' failed. Skipping JSON generation to prevent corrupted data."
             }
             always {
                 script {
@@ -138,7 +138,7 @@ pipeline {
                             state      : state,
                             target_url : env.BUILD_URL,
                             context    : 'ci/cross-repo-jenkins',
-                            description: "Build finished with status: ${state}"
+                            description: "Build 'Build-A-Git' finished with status: ${state}"
                         ])
 
                         withCredentials([string(credentialsId: 'github_creds', variable: 'GITHUB_TOKEN')]) {
