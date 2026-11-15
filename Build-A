@@ -135,7 +135,7 @@ pipeline {
                         
                         if (env.TARGET_REPO_OWNER && env.TARGET_REPO_NAME && env.PR_COMMIT_SHA) {
                             githubNotify(
-                                credentialsId: 'gitub_creds', // Make sure this ID matches your Jenkins credential
+                                credentialsId: 'gitub_creds', // Make sure this ID matches your Jenkins credential - test
                                 account: env.TARGET_REPO_OWNER,
                                 repo: env.TARGET_REPO_NAME,
                                 sha: env.PR_COMMIT_SHA,
