@@ -9,7 +9,11 @@ pipeline {
                 [key: 'PR_MERGED',     value: '$.pull_request.merged', defaultValue: 'false'],
                 [key: 'sourceBranch', value: '$.pull_request.head.ref'],
                 [key: 'targetBranch', value: '$.pull_request.base.ref'],
-                [key: 'PR_REPO_URL',  value: '$.repository.html_url']
+                [key: 'PR_REPO_URL',  value: '$.repository.html_url'],
+                [key: 'TARGET_REPO_OWNER',  value: '$.pull_request.base.repo.owner.login'],
+                [key: 'TARGET_REPO_NAME',  value: '$.pull_request.base.repo.name'],
+                [key: 'PR_COMMIT_SHA',  value: '$.pull_request.head.sha']
+
             ],
             
              // Extract the Bitbucket Event Key from the incoming HTTP Headers
@@ -32,6 +36,9 @@ pipeline {
         SOURCE_BRANCH = "${sourceBranch}"
         TARGET_BRANCH = "${targetBranch}"
         REPO_URL      = "${PR_REPO_URL}"
+        TARGET_REPO_OWNER = "${TARGET_REPO_OWNER}"
+        TARGET_REPO_NAME = "${TARGET_REPO_NAME}"
+        PR_COMMIT_SHA = "${PR_COMMIT_SHA}"
     } 
     stages {
         stage('Build & Test') {
@@ -62,6 +69,9 @@ pipeline {
                             
                             //Passing SOURCE_BRANCH=Branch-B  and REPO_URL as env variables to Build-B
                             build job: 'Build-B-GIT', parameters: [
+                                string(name: 'TARGET_REPO_OWNER', value: env.TARGET_REPO_OWNER),
+                                string(name: 'TARGET_REPO_NAME',value: env.TARGET_REPO_NAME),
+                                string(name: 'PR_COMMIT_SHA',value: env.PR_COMMIT_SHA),
                                 string(name: 'SOURCE_BRANCH', value: env.SOURCE_BRANCH),
                                 string(name: 'PR_REPO_URL', value: env.PR_REPO_URL),
                                 string(name: 'START_TIME', value: env.START_TIME)

@@ -121,12 +121,29 @@ pipeline {
                 sh 'cat build-params.json'
 
                 }
-                githubNotify credentialsId: 'git_ssh_key', status: 'SUCCESS', description: 'Build passed'
             }
 
             failure {
                 echo "Build failed. Skipping JSON generation to prevent corrupted data."
-                githubNotify credentialsId: 'git_ssh_key', status: 'FAILURE', description: 'Build failed'
+            }
+            always {
+                script {
+                        def status = currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' : 'FAILURE'
+                        
+                        if (env.TARGET_REPO_OWNER && env.TARGET_REPO_NAME && env.PR_COMMIT_SHA) {
+                            githubNotify(
+                                credentialsId: 'github-token-id', // Make sure this ID matches your Jenkins credential
+                                account: env.TARGET_REPO_OWNER,
+                                repo: env.TARGET_REPO_NAME,
+                                sha: env.PR_COMMIT_SHA,
+                                status: status,
+                                context: 'ci/cross-repo-jenkins',
+                                description: "Build finished with status: ${status}"
+                            )
+                        } else {
+                            echo "Skipping GitHub status notification: Missing webhook PR variables (likely a manual build)."
+                        }
+                }
             }
         }
     }
