@@ -9,10 +9,10 @@ pipeline {
                 [key: 'PR_MERGED',     value: '$.pull_request.merged', defaultValue: 'false'],
                 [key: 'sourceBranch', value: '$.pull_request.head.ref'],
                 [key: 'targetBranch', value: '$.pull_request.base.ref'],
-                [key: 'PR_REPO_URL',  value: '$.repository.html_url'],
-                [key: 'TARGET_REPO_OWNER',  value: '$.pull_request.base.repo.owner.login'],
-                [key: 'TARGET_REPO_NAME',  value: '$.pull_request.base.repo.name'],
-                [key: 'PR_COMMIT_SHA',  value: '$.pull_request.head.sha']
+                [key: 'prRepoUrl',  value: '$.repository.html_url'],
+                [key: 'targetRepoOwner',  value: '$.pull_request.base.repo.owner.login'],
+                [key: 'targetRepoName',  value: '$.pull_request.base.repo.name'],
+                [key: 'prCommitSha',  value: '$.pull_request.head.sha']
 
             ],
             
@@ -35,10 +35,10 @@ pipeline {
         START_TIME = "${currentBuild.startTimeInMillis}"
         SOURCE_BRANCH = "${sourceBranch}"
         TARGET_BRANCH = "${targetBranch}"
-        REPO_URL      = "${PR_REPO_URL}"
-        TARGET_REPO_OWNER = "${TARGET_REPO_OWNER}"
-        TARGET_REPO_NAME = "${TARGET_REPO_NAME}"
-        PR_COMMIT_SHA = "${PR_COMMIT_SHA}"
+        REPO_URL      = "${prRepoUrl}"
+        TARGET_REPO_OWNER = "${targetRepoOwner}"
+        TARGET_REPO_NAME = "${targetRepoName}"
+        PR_COMMIT_SHA = "${prCommitSha}"
     } 
     stages {
         stage('Build & Test') {
