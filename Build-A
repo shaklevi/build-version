@@ -120,13 +120,14 @@ pipeline {
             writeFile(file: 'build-params.json', text: prettyJson)
             sh 'cat build-params.json'
 
-            // bitbucketStatusNotify(buildState: 'SUCCESSFUL')
             }
+            githubNotify credentialsId: 'git_ssh_key', status: 'SUCCESS', description: 'Build passed'
         }
 
         failure {
             echo "Build failed. Skipping JSON generation to prevent corrupted data."
-            //bitbucketStatusNotify(buildState: 'FAILED')
+            githubNotify credentialsId: 'github-token-id', status: 'FAILURE', description: 'Build failed'
+    }
         }
     }
 }
