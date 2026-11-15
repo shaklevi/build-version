@@ -131,21 +131,27 @@ pipeline {
             }
             always {
                 script {
-                    def status = currentBuild.currentResult == 'SUCCESS' ? 'success' : 'failure'
+                    def state = currentBuild.currentResult == 'SUCCESS' ? 'success' : 'failure'
 
                     if (params.TARGET_REPO_OWNER && params.TARGET_REPO_NAME && params.PR_COMMIT_SHA) {
+                        writeFile file: 'status.json', text: groovy.json.JsonOutput.toJson([
+                            state      : state,
+                            target_url : env.BUILD_URL,
+                            context    : 'ci/cross-repo-jenkins',
+                            description: "Build finished with status: ${state}"
+                        ])
+
                         withCredentials([string(credentialsId: 'github_creds', variable: 'GITHUB_TOKEN')]) {
                             sh '''
-                                curl -s -f -X POST \
-                                  -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-                                  -H "Accept: application/vnd.github+json" \
-                                  "https://github.com/${TARGET_REPO_OWNER}/${TARGET_REPO_NAME}/statuses/${PR_COMMIT_SHA}" \
-                                  -d "{\"state\":\"${status}\",\"target_url\":\"${BUILD_URL}\",\"context\":\"ci/cross-repo-jenkins\",\"description\":\"Build finished with status: ${status}\"}"
+                                curl -sS -f -X POST \
+                                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                                -H "Accept: application/vnd.github+json" \
+                                "https://api.github.com/repos/$TARGET_REPO_OWNER/$TARGET_REPO_NAME/statuses/$PR_COMMIT_SHA" \
+                                -d @status.json
                             '''
                         }
-                    } 
-                    else {
-                        echo "Skipping GitHub status notification: Missing webhook PR variables (likely a manual build)."
+                    } else {
+                        echo "Skipping GitHub status notification: missing PR variables."
                     }
                 }
             }
