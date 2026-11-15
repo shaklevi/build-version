@@ -131,19 +131,6 @@ pipeline {
             }
             always {
                 script {
-<<<<<<< HEAD
-                    def status = currentBuild.currentResult == 'SUCCESS' ? 'success' : 'failure'
-
-                    if (params.TARGET_REPO_OWNER && params.TARGET_REPO_NAME && params.PR_COMMIT_SHA) {
-                        withCredentials([string(credentialsId: 'gitub_creds', variable: 'GITHUB_TOKEN')]) {
-                            sh """
-                                curl -s -X POST \
-                                -H "Authorization: token \${GITHUB_TOKEN}" \
-                                -H "Accept: application/vnd.github.v3+json" \
-                                https://github.com{params.TARGET_REPO_OWNER}/${params.TARGET_REPO_NAME}/statuses/${params.PR_COMMIT_SHA} \
-                                -d '{"state":"${status}","context":"ci/cross-repo-jenkins","description":"Build finished with status: ${status}"}'
-                            """
-=======
                         def status = currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' : 'FAILURE'
                         
                         if (env.TARGET_REPO_OWNER && env.TARGET_REPO_NAME && env.PR_COMMIT_SHA) {
@@ -158,7 +145,6 @@ pipeline {
                             )
                         } else {
                             echo "Skipping GitHub status notification: Missing webhook PR variables (likely a manual build)."
->>>>>>> HEAD@{1}
                         }
                     } else {
                         echo "Skipping GitHub status notification: Missing webhook PR variables (likely a manual build)."
