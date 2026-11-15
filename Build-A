@@ -131,6 +131,7 @@ pipeline {
             }
             always {
                 script {
+<<<<<<< HEAD
                     def status = currentBuild.currentResult == 'SUCCESS' ? 'success' : 'failure'
 
                     if (params.TARGET_REPO_OWNER && params.TARGET_REPO_NAME && params.PR_COMMIT_SHA) {
@@ -142,6 +143,22 @@ pipeline {
                                 https://github.com{params.TARGET_REPO_OWNER}/${params.TARGET_REPO_NAME}/statuses/${params.PR_COMMIT_SHA} \
                                 -d '{"state":"${status}","context":"ci/cross-repo-jenkins","description":"Build finished with status: ${status}"}'
                             """
+=======
+                        def status = currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' : 'FAILURE'
+                        
+                        if (env.TARGET_REPO_OWNER && env.TARGET_REPO_NAME && env.PR_COMMIT_SHA) {
+                            githubNotify(
+                                credentialsId: 'github_creds', // Make sure this ID matches your Jenkins credential - test
+                                account: env.TARGET_REPO_OWNER,
+                                repo: env.TARGET_REPO_NAME,
+                                sha: env.PR_COMMIT_SHA,
+                                status: status,
+                                context: 'ci/cross-repo-jenkins',
+                                description: "Build finished with status: ${status}"
+                            )
+                        } else {
+                            echo "Skipping GitHub status notification: Missing webhook PR variables (likely a manual build)."
+>>>>>>> HEAD@{1}
                         }
                     } else {
                         echo "Skipping GitHub status notification: Missing webhook PR variables (likely a manual build)."
