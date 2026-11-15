@@ -135,13 +135,13 @@ pipeline {
 
                     if (params.TARGET_REPO_OWNER && params.TARGET_REPO_NAME && params.PR_COMMIT_SHA) {
                         withCredentials([string(credentialsId: 'github_creds', variable: 'GITHUB_TOKEN')]) {
-                            sh """
+                            sh '''
                                 curl -s -f -X POST \
-                                -H "Authorization: Bearer \"${GITHUB_TOKEN}" \
-                                -H "Accept: application/vnd.github+json" \
-                                "https://github.com/${params.TARGET_REPO_OWNER}/${params.TARGET_REPO_NAME}/statuses/${params.PR_COMMIT_SHA}" \
-                                -d '{"state":"${status}","target_url":"${params.PR_REPO_URL}","context":"ci/cross-repo-jenkins","description":"Build finished with status: ${status}"}'
-                            """
+                                  -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+                                  -H "Accept: application/vnd.github+json" \
+                                  "https://github.com/${TARGET_REPO_OWNER}/${TARGET_REPO_NAME}/statuses/${PR_COMMIT_SHA}" \
+                                  -d "{\"state\":\"${status}\",\"target_url\":\"${BUILD_URL}\",\"context\":\"ci/cross-repo-jenkins\",\"description\":\"Build finished with status: ${STATUS}\"}"
+                            '''
                         }
                     } 
                     else {
