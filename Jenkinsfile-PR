@@ -59,6 +59,9 @@ pipeline {
                             
                             //Passing SOURCE_BRANCH=Branch-A  and REPO_URL as env variables to Build-A
                             build job: 'Build-A-GIT', parameters: [
+                                string(name: 'TARGET_REPO_OWNER', value: env.TARGET_REPO_OWNER),
+                                string(name: 'TARGET_REPO_NAME',value: env.TARGET_REPO_NAME),
+                                string(name: 'PR_COMMIT_SHA',value: env.PR_COMMIT_SHA),
                                 string(name: 'SOURCE_BRANCH', value: env.SOURCE_BRANCH),
                                 string(name: 'PR_REPO_URL', value: env.PR_REPO_URL),
                                 string(name: 'START_TIME', value: env.START_TIME)
