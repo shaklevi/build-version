@@ -143,14 +143,13 @@ pipeline {
                                 context: 'ci/cross-repo-jenkins',
                                 description: "Build finished with status: ${status}"
                             )
-                        } else {
+                        } 
+                        else {
                             echo "Skipping GitHub status notification: Missing webhook PR variables (likely a manual build)."
                         }
-                    } else {
-                        echo "Skipping GitHub status notification: Missing webhook PR variables (likely a manual build)."
                     }
                 }
             }
         }
-    }
+    
 
