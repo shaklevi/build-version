@@ -126,7 +126,7 @@ pipeline {
 
             failure {
                 echo "Build failed. Skipping JSON generation to prevent corrupted data."
-                githubNotify credentialsId: 'github-token-id', status: 'FAILURE', description: 'Build failed'
+                githubNotify credentialsId: 'git_ssh_key', status: 'FAILURE', description: 'Build failed'
             }
         }
     }
