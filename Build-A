@@ -8,9 +8,9 @@ pipeline {
     }
 
     parameters {
-        string(name: 'TARGET_REPO_OWNER',defaultValue: '', 'Target repository owner')
-        string(name: 'TARGET_REPO_NAME',defaultValue: '', 'Target repository name')
-        string(name: 'PR_COMMIT_SHA',defaultValue: '', 'PR commit SHA')
+        string(name: 'TARGET_REPO_OWNER', defaultValue: '', description:'Target repository owner')
+        string(name: 'TARGET_REPO_NAME', defaultValue: '', description:'Target repository name')
+        string(name: 'PR_COMMIT_SHA', defaultValue: '', description:'PR commit SHA')
         string(name: 'SOURCE_BRANCH', defaultValue: '', description: 'Branch passed from upstream')
         string(name: 'PR_REPO_URL', defaultValue: '', description: 'Repository URL passed from upstream')
         string(name: 'START_TIME', defaultValue: '', description: 'Start time of triggering build in millis')
