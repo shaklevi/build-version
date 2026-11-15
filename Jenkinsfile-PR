@@ -35,7 +35,7 @@ pipeline {
         START_TIME = "${currentBuild.startTimeInMillis}"
         SOURCE_BRANCH = "${sourceBranch}"
         TARGET_BRANCH = "${targetBranch}"
-        REPO_URL      = "${prRepoUrl}"
+        PR_REPO_URL      = "${prRepoUrl}"
         TARGET_REPO_OWNER = "${targetRepoOwner}"
         TARGET_REPO_NAME = "${targetRepoName}"
         PR_COMMIT_SHA = "${prCommitSha}"
