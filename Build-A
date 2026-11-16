@@ -61,6 +61,8 @@ pipeline {
                             git checkout -B main origin/main
                             
                             gcc --version
+			    chmod +x libs/mlx-linux/configure
+                            make -C libs/mlx-linux
                             make
                         '''
                     }
