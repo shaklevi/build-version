@@ -55,6 +55,7 @@ pipeline {
         stage('Lint (-Wall -Wextra -Werror)') {
             steps { 
                 dir("${env.FOLDER_NAME}") {
+                    sh 'pwd'
                     sh 'make -C tests lint' 
                 }
             }
