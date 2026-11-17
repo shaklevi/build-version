@@ -20,6 +20,7 @@ pipeline {
         booleanParam(name: 'STRICT_KNOWN_BUGS', defaultValue: false,
             description: 'Treat the documented KNOWN_BUG tests as failures (turns the build red until they are fixed).')
             string(name: 'FOLDER_NAME', defaultValue: '', description:'folder of tests.')
+            string(name: 'PR_REPO_URL', defaultValue: '', description: 'Repository URL passed from upstream')
     }
 
     environment {
@@ -29,6 +30,20 @@ pipeline {
     }
 
     stages {
+        stage('Clone Repository') {
+            steps {
+                script {
+                    if (!params.TARGET_BRANCH || !params.PR_REPO_URL) {
+                        error "Missing required trigger environment variables: SOURCE_BRANCH or PR_REPO_URL."
+                    }
+                }
+                dir("${env.FOLDER_NAME}") {
+                    deleteDir()
+                    echo "Cloning branch ${params.SOURCE_BRANCH} from ${params.PR_REPO_URL}..."
+                    git branch: params.TARGET_BRANCH, url: params.PR_REPO_URL
+                }
+            }
+        }
         stage('Check toolchain') {
             steps {
                 dir("${params.FOLDER_NAME}") {
