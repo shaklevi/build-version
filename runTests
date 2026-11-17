@@ -20,7 +20,7 @@ pipeline {
         booleanParam(name: 'STRICT_KNOWN_BUGS', defaultValue: false,
             description: 'Treat the documented KNOWN_BUG tests as failures (turns the build red until they are fixed).')
             string(name: 'FOLDER_NAME', defaultValue: '', description:'folder of tests.')
-            string(name: 'PR_REPO_URL', defaultValue: '', description: 'Repository URL passed from upstream')
+            string(name: 'REPO_URL', defaultValue: '', description: 'Repository URL passed from upstream')
     }
 
     environment {
@@ -40,7 +40,7 @@ pipeline {
                 dir("${env.FOLDER_NAME}") {
                     deleteDir()
                     echo "Cloning branch ${params.SOURCE_BRANCH} from ${params.PR_REPO_URL}..."
-                    git branch: "main", url: params.PR_REPO_URL
+                    git branch: "main", url: params.REPO_URL
                 }
             }
         }
