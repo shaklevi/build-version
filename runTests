@@ -41,7 +41,7 @@ pipeline {
                 dir("${env.FOLDER_NAME}") {
                     deleteDir()
                     echo "Cloning branch ${params.SOURCE_BRANCH} from ${params.PR_REPO_URL}..."
-                    git branch: params.SOURCE_BRANCH, credentialsId: 'git_ssh_key', url: params.REPO_URL
+                    git branch: "main", credentialsId: 'git_ssh_key', url: params.REPO_URL
                 }
             }
         }
