@@ -1,0 +1,78 @@
+// Declarative pipeline for maze-escape.
+//
+// ANY failing stage (compiler warning in src/, failing unit/integration test,
+// broken level or texture, crash on startup...) fails the build.
+//
+// Agent prerequisites (Debian/Ubuntu):
+//   sudo apt-get install -y build-essential libx11-dev libxext-dev libbsd-dev xvfb
+//   (libbsd-dev is needed by MiniLibX's own test program; without it `make linux` fails)
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        timeout(time: 20, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        booleanParam(name: 'STRICT_KNOWN_BUGS', defaultValue: false,
+            description: 'Treat the documented KNOWN_BUG tests as failures (turns the build red until they are fixed).')
+    }
+
+    environment {
+        STRICT_KNOWN_BUGS = "${params.STRICT_KNOWN_BUGS ? '1' : '0'}"
+        REQUIRE_XVFB      = '1'   // fail (don't silently skip) if the window smoke tests cannot run
+        ASAN_OPTIONS      = 'detect_leaks=0'
+    }
+
+    stages {
+        stage('Check toolchain') {
+            steps {
+                sh '''
+                    set -e
+                    missing=""
+                    command -v cc        >/dev/null || missing="$missing build-essential"
+                    command -v make      >/dev/null || missing="$missing make"
+                    command -v xvfb-run  >/dev/null || missing="$missing xvfb"
+                    [ -f /usr/include/X11/Xlib.h ]  || missing="$missing libx11-dev"
+                    [ -f /usr/include/X11/extensions/XShm.h ] || missing="$missing libxext-dev"
+                    echo 'int main(void){return 0;}' | cc -x c - -lbsd -o /dev/null 2>/dev/null || missing="$missing libbsd-dev"
+                    if [ -n "$missing" ]; then
+                        echo "Missing on this agent:$missing"
+                        echo "Install with: apt-get install -y build-essential libx11-dev libxext-dev libbsd-dev xvfb"
+                        exit 1
+                    fi
+                    cc --version | head -1
+                '''
+            }
+        }
+
+        stage('Lint (-Wall -Wextra -Werror)') {
+            steps { sh 'make -C tests lint' }
+        }
+
+        stage('Unit tests (ASan + UBSan)') {
+            steps { sh 'make -C tests test' }
+            post { always { junit allowEmptyResults: false, testResults: 'tests/reports/unit.xml' } }
+        }
+
+        stage('Build') {
+            steps { sh 'make linux' }
+        }
+
+        stage('Integration tests') {
+            steps { sh 'bash tests/integration/test_cli.sh' }
+            post { always { junit allowEmptyResults: false, testResults: 'tests/reports/integration.xml' } }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'tests/reports/*.xml', allowEmptyArchive: true
+        }
+        failure { echo 'Build FAILED - see the failing stage / test report above.' }
+        success { echo 'All checks passed.' }
+    }
+}
