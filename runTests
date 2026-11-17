@@ -31,7 +31,7 @@ pipeline {
     stages {
         stage('Check toolchain') {
             steps {
-                dir("${env.FOLDER_NAME}") {
+                dir("${params.FOLDER_NAME}") {
                     sh '''
                         set -e
                         missing=""
@@ -54,7 +54,8 @@ pipeline {
 
         stage('Lint (-Wall -Wextra -Werror)') {
             steps { 
-                dir("${env.FOLDER_NAME}") {
+                dir("${params.FOLDER_NAME}") {
+                    echo "FOLDER_NAME: ${params.FOLDER_NAME}"
                     sh 'pwd'
                     sh 'ls -la'
                     sh 'make -C tests lint' 
@@ -64,7 +65,7 @@ pipeline {
 
         stage('Unit tests (ASan + UBSan)') {
             steps {
-                dir("${env.FOLDER_NAME}") { 
+                dir("${params.FOLDER_NAME}") { 
                     sh 'make -C tests test'
                 } 
             }
@@ -73,7 +74,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                dir("${env.FOLDER_NAME}") { 
+                dir("${params.FOLDER_NAME}") { 
                     sh 'make linux' 
                 }
             }
@@ -81,7 +82,7 @@ pipeline {
 
         stage('Integration tests') {
             steps {
-                dir("${env.FOLDER_NAME}") { 
+                dir("${params.FOLDER_NAME}") { 
                     sh 'bash tests/integration/test_cli.sh'
                 } 
             }
