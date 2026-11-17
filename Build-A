@@ -130,7 +130,7 @@ pipeline {
                 }
                 build job: 'runTests', parameters: [
                     string(name: 'FOLDER_NAME', value: env.FOLDER_NAME),
-                    string(name: 'PR_REPO_URL', value: params.PR_REPO_URL)
+                    string(name: 'TARGET_REPO_NAME', value: params.TARGET_REPO_NAME)
 
                 ]
             }
