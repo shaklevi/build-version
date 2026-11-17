@@ -33,14 +33,14 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 script {
-                    if (!params.TARGETARGET_REPO_NAME || !params.PR_REPO_URL) {
+                    if (!params.TARGET_REPO_NAME || !params.PR_REPO_URL) {
                         error "Missing required trigger environment variables: SOURCE_BRANCH or PR_REPO_URL."
                     }
                 }
                 dir("${env.FOLDER_NAME}") {
                     deleteDir()
                     echo "Cloning branch ${params.SOURCE_BRANCH} from ${params.PR_REPO_URL}..."
-                    git branch: "main", url: params.REPO_URL
+                    git branch: "main", credentialsId: 'git_ssh_key', url: params.REPO_URL
                 }
             }
         }
