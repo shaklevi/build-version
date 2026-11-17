@@ -22,6 +22,8 @@ pipeline {
             string(name: 'FOLDER_NAME', defaultValue: '', description:'folder of tests.')
             string(name: 'REPO_URL', defaultValue: '', description: 'Repository URL passed from upstream')
             string(name: 'SOURCE_BRANCH', defaultValue: '', description: 'Repository URL passed from upstream')
+            string(name: 'TARGET_BRANCH', defaultValue: '', description: 'Repository URL passed from upstream')
+            
     }
 
     environment {
@@ -40,8 +42,8 @@ pipeline {
                 }
                 dir("${env.FOLDER_NAME}") {
                     deleteDir()
-                    echo "Cloning branch ${params.SOURCE_BRANCH} from ${params.REPO_URL}..."
-                    git branch: "main", credentialsId: 'git_ssh_key', url: params.REPO_URL
+                    echo "Cloning branch ${params.TARGET_BRANCH} from ${params.REPO_URL}..."
+                    git branch: params.TARGET_BRANCH, credentialsId: 'git_ssh_key', url: params.REPO_URL
                 }
             }
         }
