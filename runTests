@@ -46,7 +46,7 @@ pipeline {
                         sh """
                             git config user.name "Jenkins CI"
                             git config user.email "jenkins@example.com"
-                            git pull "${params.REPO_URL}"
+                            git pull "${params.REPO_URL} ${params.TARGET_BRANCH}"
                         """
                     }
                 }
