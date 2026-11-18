@@ -30,6 +30,7 @@ pipeline {
         STRICT_KNOWN_BUGS = "${params.STRICT_KNOWN_BUGS ? '1' : '0'}"
         REQUIRE_XVFB      = '1'   // fail (don't silently skip) if the window smoke tests cannot run
         ASAN_OPTIONS      = 'detect_leaks=0'
+        PROJ_FOLDER = "${params.FOLDER_NAME}/multi-file-c"
     }
 
     stages {
@@ -47,7 +48,7 @@ pipeline {
                             git config --global user.name "Jenkins CI"
                             git config --global user.email "jenkins@example.com"
                             git config --global --add safe.directory /var/lib/jenkins/workspace/runTests
-                            git pull "${params.REPO_URL} ${params.TARGET_BRANCH}"
+                            git clone "${params.REPO_URL}"
                         """
                     }
                 }
@@ -55,7 +56,7 @@ pipeline {
         }
         stage('Check toolchain') {
             steps {
-                dir("${params.FOLDER_NAME}") {
+                dir("${env.PROJ_FOLDER}") {
                     sh '''
                         set -e
                         missing=""
@@ -78,7 +79,7 @@ pipeline {
 
         stage('Lint (-Wall -Wextra -Werror)') {
             steps { 
-                dir("${params.FOLDER_NAME}") {
+                dir("${env.PROJ_FOLDER}") {
                     echo "FOLDER_NAME: ${params.FOLDER_NAME}"
                     sh 'pwd'
                     sh 'ls -la'
@@ -89,7 +90,7 @@ pipeline {
 
         stage('Unit tests (ASan + UBSan)') {
             steps {
-                dir("${params.FOLDER_NAME}") { 
+                dir("${env.PROJ_FOLDER}") { 
                     sh 'make -C tests test'
                 } 
             }
@@ -98,7 +99,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                dir("${params.FOLDER_NAME}") { 
+                dir("${env.PROJ_FOLDER}") { 
                     sh 'make linux' 
                 }
             }
@@ -106,7 +107,7 @@ pipeline {
 
         stage('Integration tests') {
             steps {
-                dir("${params.FOLDER_NAME}") { 
+                dir("${env.PROJ_FOLDER}") { 
                     sh 'bash tests/integration/test_cli.sh'
                 } 
             }
