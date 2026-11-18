@@ -94,7 +94,7 @@ pipeline {
                     sh 'make -C tests test'
                 } 
             }
-            post { always { junit allowEmptyResults: false, testResults: 'tests/reports/unit.xml' } }
+            post { always { junit allowEmptyResults: false, testResults: "${env.PROJ_FOLDER}/tests/reports/unit.xml" } }
         }
 
         stage('Build') {
@@ -111,13 +111,13 @@ pipeline {
                     sh 'bash tests/integration/test_cli.sh'
                 } 
             }
-            post { always { junit allowEmptyResults: false, testResults: 'tests/reports/integration.xml' } }
+            post { always { junit allowEmptyResults: false, testResults: "${env.PROJ_FOLDER}/tests/reports/integration.xml" } }
         }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: 'tests/reports/*.xml', allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.PROJ_FOLDER}/tests/reports/*.xml", allowEmptyArchive: true
         }
         failure { echo 'Build FAILED - see the failing stage / test report above.' }
         success { echo 'All checks passed.' }
