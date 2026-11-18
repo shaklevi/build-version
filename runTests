@@ -42,8 +42,13 @@ pipeline {
                 }
                 dir("${env.FOLDER_NAME}") {
                     deleteDir()
-                    echo "Cloning branch ${params.TARGET_BRANCH} from ${params.REPO_URL}..."
-                    git branch: params.TARGET_BRANCH, credentialsId: 'git_ssh_key', url: params.REPO_URL
+                    sshagent(credentials: ['git_ssh_key']) {
+                        sh """
+                            git config user.name "Jenkins CI"
+                            git config user.email "jenkins@example.com"
+                            git pull "${params.REPO_URL}"
+                        """
+                    }
                 }
             }
         }
