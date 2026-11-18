@@ -36,7 +36,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 script {
-                    if (!params.SOURCE_BRANCH || !params.REPO_URL) {
+                    if (!params.FOLDER_NAME || !params.REPO_URL) {
                         error "Missing required trigger environment variables: SOURCE_BRANCH or PR_REPO_URL."
                     }
                 }
